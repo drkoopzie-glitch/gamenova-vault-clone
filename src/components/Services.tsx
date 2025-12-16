@@ -60,10 +60,12 @@ export function Services() {
                 <CardDescription className="text-muted-foreground">
                   {service.description}
                 </CardDescription>
-                <Button variant="ghost" size="sm" className="gap-2 text-primary hover:text-primary">
-                  <FileText className="w-4 h-4" />
-                  Get quote
-                </Button>
+                <a href="#quote">
+                  <Button variant="ghost" size="sm" className="gap-2 text-primary hover:text-primary">
+                    <FileText className="w-4 h-4" />
+                    Get quote
+                  </Button>
+                </a>
               </CardContent>
             </Card>
           ))}

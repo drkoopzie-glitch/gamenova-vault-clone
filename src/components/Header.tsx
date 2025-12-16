@@ -6,11 +6,11 @@ const navItems = [
   { label: "Services", href: "#services" },
   { label: "Expertise", href: "#expertise" },
   { label: "Experience", href: "#experience" },
-  { label: "Prices", href: "#prices" },
+  { label: "Prices", href: "#quote" },
   { label: "Projects", href: "#projects" },
-  { label: "Contact", href: "#contact" },
   { label: "Guides", href: "#guides" },
   { label: "Freelancing", href: "#freelancing" },
+  { label: "Contact", href: "#contact" },
 ];
 
 export function Header() {
@@ -34,10 +34,12 @@ export function Header() {
             ))}
           </nav>
 
-          <Button variant="outline" size="sm" className="gap-2">
-            <Upload className="w-4 h-4" />
-            Upload
-          </Button>
+          <a href="#quote">
+            <Button variant="outline" size="sm" className="gap-2">
+              <Upload className="w-4 h-4" />
+              Upload
+            </Button>
+          </a>
         </div>
       </div>
     </header>

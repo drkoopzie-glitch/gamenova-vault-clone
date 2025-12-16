@@ -29,21 +29,25 @@ export function Hero() {
               tone for every document. Let's make your words shine!
             </p>
             <div className="flex flex-wrap gap-4">
-              <Button 
-                size="lg" 
-                className="gap-2 bg-primary-foreground text-primary hover:bg-primary-foreground/90 glow-primary"
-              >
-                <FileText className="w-5 h-5" />
-                Generate quote
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="gap-2 border-primary-foreground/50 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20"
-              >
-                <Upload className="w-5 h-5" />
-                Upload
-              </Button>
+              <a href="#quote">
+                <Button 
+                  size="lg" 
+                  className="gap-2 bg-primary-foreground text-primary hover:bg-primary-foreground/90 glow-primary"
+                >
+                  <FileText className="w-5 h-5" />
+                  Generate quote
+                </Button>
+              </a>
+              <a href="#quote">
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="gap-2 border-primary-foreground/50 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20"
+                >
+                  <Upload className="w-5 h-5" />
+                  Upload
+                </Button>
+              </a>
             </div>
           </div>
 

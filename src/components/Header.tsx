@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
+import { CartDrawer } from "@/components/CartDrawer";
 
 const navItems = [
   { label: "Home", href: "#home" },
@@ -34,12 +35,15 @@ export function Header() {
             ))}
           </nav>
 
-          <a href="#quote">
-            <Button variant="outline" size="sm" className="gap-2">
-              <Upload className="w-4 h-4" />
-              Upload
-            </Button>
-          </a>
+          <div className="flex items-center gap-3">
+            <a href="#quote">
+              <Button variant="outline" size="sm" className="gap-2">
+                <Upload className="w-4 h-4" />
+                Upload
+              </Button>
+            </a>
+            <CartDrawer />
+          </div>
         </div>
       </div>
     </header>

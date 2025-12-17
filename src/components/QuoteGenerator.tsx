@@ -1,15 +1,96 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Upload, Ticket, CreditCard } from "lucide-react";
+import { Upload, Ticket, CreditCard, Loader2, ExternalLink } from "lucide-react";
+import { toast } from "sonner";
+import { storefrontApiRequest, STOREFRONT_PRODUCTS_QUERY, ShopifyProduct, createStorefrontCheckout } from "@/lib/shopify";
 
 export function QuoteGenerator() {
   const [editingMode, setEditingMode] = useState<"basic" | "premium">("basic");
   const [agreed, setAgreed] = useState(false);
+  const [wordCount, setWordCount] = useState("");
+  const [products, setProducts] = useState<ShopifyProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<ShopifyProduct | null>(null);
+  const [quoteGenerated, setQuoteGenerated] = useState(false);
+
+  // Pricing rates per word (USD)
+  const basicRate = 0.02;
+  const premiumRate = 0.05;
+
+  const calculatedPrice = wordCount 
+    ? (parseInt(wordCount) * (editingMode === "basic" ? basicRate : premiumRate)).toFixed(2)
+    : "0.00";
+
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const data = await storefrontApiRequest(STOREFRONT_PRODUCTS_QUERY, { first: 10 });
+        if (data?.data?.products?.edges) {
+          setProducts(data.data.products.edges);
+        }
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProducts();
+  }, []);
+
+  const handleGenerateQuote = () => {
+    if (!wordCount || parseInt(wordCount) <= 0) {
+      toast.error("Please enter a valid word count");
+      return;
+    }
+    if (!agreed) {
+      toast.error("Please agree to the terms and conditions");
+      return;
+    }
+    setQuoteGenerated(true);
+    toast.success(`Quote generated: $${calculatedPrice} for ${editingMode} editing`);
+  };
+
+  const handleProceedToPayment = async () => {
+    if (!quoteGenerated) {
+      toast.error("Please generate a quote first");
+      return;
+    }
+
+    // If we have products, use the selected one
+    if (products.length > 0) {
+      const product = selectedProduct || products[0];
+      const variant = product.node.variants.edges[0]?.node;
+      
+      if (!variant) {
+        toast.error("No variant available for this product");
+        return;
+      }
+
+      setCheckoutLoading(true);
+      try {
+        const checkoutUrl = await createStorefrontCheckout([{
+          variantId: variant.id,
+          quantity: 1,
+        }]);
+        window.open(checkoutUrl, '_blank');
+        toast.success("Redirecting to checkout...");
+      } catch (error) {
+        console.error("Checkout failed:", error);
+        toast.error("Failed to create checkout. Please try again.");
+      } finally {
+        setCheckoutLoading(false);
+      }
+    } else {
+      // No products available - show message
+      toast.info("Payment checkout will be available once services are added to the store");
+    }
+  };
 
   return (
     <section id="quote" className="py-20 bg-muted/30">
@@ -38,6 +119,11 @@ export function QuoteGenerator() {
                 type="number" 
                 placeholder="Enter word count"
                 className="bg-background"
+                value={wordCount}
+                onChange={(e) => {
+                  setWordCount(e.target.value);
+                  setQuoteGenerated(false);
+                }}
               />
             </div>
 
@@ -75,7 +161,10 @@ export function QuoteGenerator() {
                 <Button
                   type="button"
                   variant={editingMode === "basic" ? "default" : "outline"}
-                  onClick={() => setEditingMode("basic")}
+                  onClick={() => {
+                    setEditingMode("basic");
+                    setQuoteGenerated(false);
+                  }}
                   className="w-full"
                 >
                   Basic
@@ -83,13 +172,34 @@ export function QuoteGenerator() {
                 <Button
                   type="button"
                   variant={editingMode === "premium" ? "default" : "outline"}
-                  onClick={() => setEditingMode("premium")}
+                  onClick={() => {
+                    setEditingMode("premium");
+                    setQuoteGenerated(false);
+                  }}
                   className="w-full"
                 >
                   Premium
                 </Button>
               </div>
+              <p className="text-xs text-muted-foreground text-center">
+                Basic: ${basicRate}/word • Premium: ${premiumRate}/word
+              </p>
             </div>
+
+            {/* Quote Display */}
+            {quoteGenerated && (
+              <div className="p-4 bg-primary/10 rounded-lg border border-primary/20">
+                <p className="text-center">
+                  <span className="text-sm text-muted-foreground">Your quote:</span>
+                  <br />
+                  <span className="text-2xl font-bold text-primary">${calculatedPrice}</span>
+                  <br />
+                  <span className="text-xs text-muted-foreground">
+                    {wordCount} words × {editingMode} editing
+                  </span>
+                </p>
+              </div>
+            )}
 
             {/* Coupon */}
             <div className="flex items-center gap-2 p-3 bg-secondary/10 rounded-lg">
@@ -101,13 +211,34 @@ export function QuoteGenerator() {
             </div>
 
             {/* Generate Quote Button */}
-            <Button className="w-full gap-2" size="lg" disabled={!agreed}>
+            <Button 
+              className="w-full gap-2" 
+              size="lg" 
+              disabled={!agreed || !wordCount}
+              onClick={handleGenerateQuote}
+            >
               Generate Quote
             </Button>
 
             {/* Proceed to Payment */}
-            <Button variant="secondary" className="w-full gap-2" size="lg">
-              Proceed to payment
+            <Button 
+              variant="secondary" 
+              className="w-full gap-2" 
+              size="lg"
+              disabled={!quoteGenerated || checkoutLoading}
+              onClick={handleProceedToPayment}
+            >
+              {checkoutLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Creating checkout...
+                </>
+              ) : (
+                <>
+                  <ExternalLink className="w-4 h-4" />
+                  Proceed to payment
+                </>
+              )}
             </Button>
 
             {/* Payment Methods */}

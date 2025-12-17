@@ -20,8 +20,8 @@ export function QuoteGenerator() {
   const [quoteGenerated, setQuoteGenerated] = useState(false);
 
   // Pricing rates per word (USD)
-  const basicRate = 0.02;
-  const premiumRate = 0.05;
+  const basicRate = 0.03;
+  const premiumRate = 0.07;
 
   const calculatedPrice = wordCount 
     ? (parseInt(wordCount) * (editingMode === "basic" ? basicRate : premiumRate)).toFixed(2)

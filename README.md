@@ -71,3 +71,40 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+
+## Self-hosting (separate host)
+
+This is a Vite + React app, so you can build static assets and serve them from any web server.
+
+### Option A: Build locally and upload `dist/`
+
+```sh
+npm install
+npm run build
+```
+
+Upload the `dist/` folder to your host and configure a SPA fallback so routes load correctly.
+If you are using Nginx, you can use the `nginx.conf` file in this repo as a starting point.
+
+### Option B: Docker (build + serve with Nginx)
+
+```sh
+docker build -t gamenova-vault .
+docker run --rm -p 8080:80 gamenova-vault
+```
+
+Then visit `http://localhost:8080`.
+
+## Deploy to Vercel
+
+Vercel can build and serve the static Vite output directly.
+
+1. Push this repo to GitHub/GitLab/Bitbucket.
+2. In Vercel, click **New Project** and import the repo.
+3. Use these settings:
+   - **Framework Preset:** Vite
+   - **Build Command:** `npm run build`
+   - **Output Directory:** `dist`
+   - **Install Command:** `npm install`
+
+This repo includes a `vercel.json` with a SPA rewrite so client-side routes resolve correctly.

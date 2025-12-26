@@ -94,3 +94,17 @@ docker run --rm -p 8080:80 gamenova-vault
 ```
 
 Then visit `http://localhost:8080`.
+
+## Deploy to Vercel
+
+Vercel can build and serve the static Vite output directly.
+
+1. Push this repo to GitHub/GitLab/Bitbucket.
+2. In Vercel, click **New Project** and import the repo.
+3. Use these settings:
+   - **Framework Preset:** Vite
+   - **Build Command:** `npm run build`
+   - **Output Directory:** `dist`
+   - **Install Command:** `npm install`
+
+This repo includes a `vercel.json` with a SPA rewrite so client-side routes resolve correctly.
